@@ -16,6 +16,7 @@ classify=no
 aiger=undefined
 yalsat=undefined
 files=no
+win32=no
 
 ##########################################################################
 
@@ -57,6 +58,7 @@ do
        echo "--druplig       specify Druplig directory (default '../druplig')"
        echo "--no-druplig    do not include Druplig code"
        echo "--files         generate statistics files"
+       echo "--win32         perform a Windows build"
        echo
        echo "--classify      use classifier for automatic parameter setting"
        exit 0
@@ -83,6 +85,7 @@ do
     --druplig) druplig=`echo "$1"|sed -e 's,^--druplig=,,'`;;
     --no-druplig) druplig=no;;
     --files) files=yes;;
+    --win32) win32=yes;;
     --classify) classify=yes;;
     -f*|-m*) if [ $other = none ]; then other=$1; else other="$other $1"; fi;;
     *) echo "*** configure.sh: invalid command line option '$1'"; exit 1;;
@@ -244,6 +247,21 @@ fi
 [ $files = no ] && CFLAGS="$CFLAGS -DNLGLFILES"
 [ $dema = no ] && CFLAGS="$CFLAGS -DNLGLDEMA"
 
+#
+# makefile.in contains some targets that do not build, and are not required, on
+# Windows.
+#
+# The variable "POSIX" conditionally enables/disables these rules.
+#
+
+if [ $win32 = yes ]
+then
+    CFLAGS="$CFLAGS -DNPOSIX"
+    POSIX="# "
+else
+    POSIX=""
+fi
+
 if [ $classify = yes -a -d sc14classify ]
 then
   cd sc14classify
@@ -278,4 +296,5 @@ sed \
   -e "s,@AIGERTARGETS@,$AIGERTARGETS," \
   -e "s,@AIGER@,$AIGER," \
   -e "s,@LIBS@,$LIBS," \
+  -e "s,@POSIX@,$POSIX," \
   makefile.in > makefile

@@ -20,7 +20,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef NPOSIX
 #include <sys/resource.h>
+#endif
 #include <sys/time.h>
 #include <unistd.h>
 #include <stddef.h>
@@ -1289,11 +1291,15 @@ static void lglogstart (LGL * lgl, int level, const char * msg, ...) {
 /*------------------------------------------------------------------------*/
 
 double lglprocesstime (void) {
-  struct rusage u;
   double res;
+#ifndef NPOSIX
+  struct rusage u;
   if (getrusage (RUSAGE_SELF, &u)) return 0;
   res = u.ru_utime.tv_sec + 1e-6 * u.ru_utime.tv_usec;
   res += u.ru_stime.tv_sec + 1e-6 * u.ru_stime.tv_usec;
+#else
+  res = 0;
+#endif
   return res;
 }
 

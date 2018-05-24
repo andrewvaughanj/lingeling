@@ -14,9 +14,19 @@ all: targets
 -include makefile.mus
 -include makefile.other
 
+#
+# The variable "POSIX" expands to a "#" (i.e., a comment) on platforms that do
+# not support POSIX (e.g., Win32)
+#
+
 targets: liblgl.a
-targets: lingeling plingeling ilingeling treengeling
-targets: lglmbt lgluntrace lglddtrace
+targets: lingeling
+targets: ilingeling
+targets: lgluntrace
+@POSIX@targets: plingeling
+@POSIX@targets: treengeling
+@POSIX@targets: lglmbt
+@POSIX@targets: lglddtrace
 targets: @AIGERTARGETS@
 
 analyze:

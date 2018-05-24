@@ -6,7 +6,8 @@
 #define lglib_h_INCLUDED
 
 #include <stdio.h>				// for 'FILE'
-#include <stdlib.h>				// for 'int64_t'
+#include <stdlib.h>
+#include <stdint.h>				// for 'int64_t'
 
 //--------------------------------------------------------------------------
 

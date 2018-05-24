@@ -31,7 +31,9 @@ static void resetsighandlers (void) {
   (void) signal (SIGSEGV, sig_segv_handler);
   (void) signal (SIGABRT, sig_abrt_handler);
   (void) signal (SIGTERM, sig_term_handler);
+#ifndef NPOSIX
   (void) signal (SIGBUS, sig_bus_handler);
+#endif
 }
 
 static void caughtsigmsg (int sig) {
@@ -42,8 +44,10 @@ static void caughtsigmsg (int sig) {
     case SIGSEGV: printf (" SIGSEGV"); break;
     case SIGABRT: printf (" SIGABRT"); break;
     case SIGTERM: printf (" SIGTERM"); break;
+#ifndef NPOSIX
     case SIGBUS: printf (" SIGBUS"); break;
     case SIGALRM: printf (" SIGALRM"); break;
+#endif
     default: break;
   }
   printf ("\nc\n");
@@ -71,12 +75,15 @@ static void setsighandlers (void) {
   sig_segv_handler = signal (SIGSEGV, catchsig);
   sig_abrt_handler = signal (SIGABRT, catchsig);
   sig_term_handler = signal (SIGTERM, catchsig);
+#ifndef NPOSIX
   sig_bus_handler = signal (SIGBUS, catchsig);
+#endif
 }
 
 static int timelimit = -1, caughtalarm = 0;
 
 static void catchalrm (int sig) {
+#ifndef NPOSIX
   assert (sig == SIGALRM);
   if (!caughtalarm) {
     caughtalarm = 1;
@@ -87,6 +94,9 @@ static void catchalrm (int sig) {
       fflush (stdout);
     }
   }
+#else
+  /* SIGALRM does not exist on Win32 -- what behaviour should be implemented here? */
+#endif
 }
 
 static int checkalarm (void * ptr) {
@@ -513,8 +523,10 @@ ERR:
       fflush (stdout);
     }
     lglseterm (lgl, checkalarm, &caughtalarm);
+#ifndef NPOSIX
     sig_alrm_handler = signal (SIGALRM, catchalrm);
     alarm (timelimit);
+#endif
   }
   for (i = 0; i < ntargets; i++) lglassume (lgl, targets[i]);
   if (simplevel > 0) {
@@ -532,7 +544,9 @@ ERR:
   res = lglsat (lgl);
   if (timelimit >= 0) {
     caughtalarm = 0;
+#ifndef NPOSIX
     (void) signal (SIGALRM, sig_alrm_handler);
+#endif
   }
   if (oname) {
     double start = lglsec (lgl), delta;

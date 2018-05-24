@@ -14,8 +14,10 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#ifndef NPOSIX
 #include <sys/times.h>
 #include <sys/wait.h>
+#endif
 #include <ctype.h>
 #include <string.h>
 #include <limits.h>
